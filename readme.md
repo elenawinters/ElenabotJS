@@ -2,7 +2,7 @@
 
 This is a Twitch bot made by myself, Elena, for personal use.
 
-## Why JavaScript?
+## Why JavaScript (Node)?
 
 The original Elenabot in Python was great (if not overly complex), but I didn't end up using it much after some time.
 
