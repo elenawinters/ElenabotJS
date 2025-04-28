@@ -173,3 +173,8 @@ function runWSClient() {
         console.warn(e)
 	}
 }
+
+// // Example that logs all events to the console.
+// emitter.on('*', (event, data) => {
+//     console.log(data)
+// })

@@ -165,7 +165,6 @@ function runWSClient() {
                 return;  // ^ This is an abnormal format, so we handle it here.
             }
             const comp = parseIRC(line)
-            console.log(comp)
             if (comp['command'] == undefined) { return; }
             emitter.emit(comp['command'], comp)
         })
@@ -181,3 +180,8 @@ function runWSClient() {
         console.warn(e)
 	}
 }
+
+// Example that logs all events to the console.
+emitter.on('*', (event, data) => {
+    console.log(data)
+})
