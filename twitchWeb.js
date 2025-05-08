@@ -107,7 +107,7 @@ function parseIRC(data) {
                     result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 } else {
                     if (message != '') { result['message'] = message.startsWith(":") ? message.slice(1) : message; }
-                    if (!['ROOMSTATE', 'GLOBALUSERSTATE'].includes(command)) {
+                    if (!['ROOMSTATE', 'USERSTATE', 'GLOBALUSERSTATE'].includes(command)) {
                         console.warn(`${command} is not handled in a special way.`);
                         result['server'] = server;
                     }

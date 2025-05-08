@@ -15,7 +15,8 @@ const username = "justinfan6910810111097";  // This is the anonymous username we
 const password = "what.why.are.you.looking.at.this?";
 const address = "wss://irc-ws.chat.twitch.tv:443";
 // const channel = params.get('channel') ? params.get('channel') : 'twitchmedia_qs_10'
-const channel = 'twitchmedia_qs_10'
+// const channel = 'twitchmedia_qs_10'
+const channel = 'cdawgva'
 const emitter = mitt()  // Requires https://www.npmjs.com/package/mitt
 
 // badge-info=subscriber/40
@@ -112,7 +113,7 @@ function parseIRC(data) {
                     result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 } else {
                     if (message != '') { result['message'] = message.startsWith(":") ? message.slice(1) : message; }
-                    if (!['ROOMSTATE', 'GLOBALUSERSTATE'].includes(command)) {
+                    if (!['ROOMSTATE', 'USERSTATE', 'GLOBALUSERSTATE'].includes(command)) {
                         console.warn(`${command} is not handled in a special way.`);
                         result['server'] = server;
                     }
