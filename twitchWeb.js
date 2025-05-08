@@ -49,36 +49,38 @@ function parseIRC(data) {
             result['tags'][key] = value || null;
         });
         data = data.slice(match[0].length);
+        // console.log(data)
     }
 
     if (match = data.match(/^:([^ ]+) ([^ ]+) ?([^ ]+)?(.*)$/)) {
+        // console.log(('here'))
         const [_, server, command, target, _message] = match;
         const message = _message.slice(1);  // Remove the space at the start of the message.
         // result['server'] = server;  // I don't really think there's a need for this to be handled.
         result['command'] = command;
+        result['channel'] = target;
+
         switch (command) {
-            case "CAP":
+            case "CAP":     // Capability negotiation response.
                 let cap = message.slice('ACK'.length + 2).split(' ');
                 result['ACK'] = cap;
                 break;
-                // throw new Error("CAP is not handled in the new way yet.");
-                // result['response'] = 'ACK';
-                // result['message'] = cap;
-                // break;
-            case "353":
+            case "353":     // Chatter list, usually shows all users if smaller stream.
                 let users = message.split(' ');
                 users.shift();  // Remove the = sign.
                 result['channel'] = users.shift(); // Get the channel name.
                 users[0] = users[0].slice(1);
                 result['users'] = users;
                 break;
-            case "JOIN":
-            case "PART":
-                result['channel'] = target;
+            case "366":     // End of the chatter list.
+                result['channel'] = message.split(' ')[0];
+                result['message'] = message.slice(result['channel'].length + 2);
+                break;
+            case "JOIN":    // User joined the channel.
+            case "PART":    // User left the channel.
                 result['user'] = server.split('!')[0];
                 break;
-            case "PRIVMSG":
-                result['channel'] = target;
+            case "PRIVMSG":   // Chat message.
                 result['sender'] = server.split('!')[0];
                 result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 result['action'] = false;
@@ -87,27 +89,23 @@ function parseIRC(data) {
                     result['action'] = true;
                 }
                 break;
-            case "USERNOTICE":  // While this could maybe be under PRIVMSG, it's better to seperate it.
-                result['channel'] = target;
+            case "USERNOTICE":  // User notice message. Used for subscriptions, raid cancellations, etc.
                 result['sender'] = result['tags']['login'];
                 result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 result['type'] = result['tags']['msg-id'];
                 if (result['message'].includes(SOH)) { console.warn("ACTION DETECTED IN USERNOTICE?! NANI?!") }
                 break;
-            case "CLEARMSG":
-                result['channel'] = target;
+            case "CLEARMSG":    // Clear message. Used for deleting messages.
                 result['user'] = result['tags']['login'];
                 result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 break;
-            case "CLEARCHAT":
-                result['channel'] = target;
+            case "CLEARCHAT":   // Clear chat. Used for deleting messages or banning users.
                 result['user'] = message.startsWith(":") ? message.slice(1) : message;
                 break;
-            default:
+            default:            // Handle other commands here.
                 if (/^\d+$/.test(command)) {
                     result['message'] = message.startsWith(":") ? message.slice(1) : message;
                 } else {
-                    result['channel'] = target;
                     if (message != '') { result['message'] = message.startsWith(":") ? message.slice(1) : message; }
                     if (!['ROOMSTATE', 'GLOBALUSERSTATE'].includes(command)) {
                         console.warn(`${command} is not handled in a special way.`);
